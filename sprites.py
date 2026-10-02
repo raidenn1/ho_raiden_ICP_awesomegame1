@@ -7,6 +7,7 @@ from os import path
 
 vec = pg.math.Vector2
 
+
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
@@ -45,7 +46,7 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "Character_1(animation2).png"))
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "self.spritesheet(1).png"))
         self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image = self.spritesheet.get_image(0,0, TILESIZE, TILESIZE)
@@ -82,10 +83,12 @@ class Player(Sprite):
         if self.vel.x != 0 and self.vel.y !=0:
             self.vel *= 0.7071
             # self.vel.normalize()
-
+            
+# gets the ticks to refresh the image making animation
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
+        # gets ticks for exactly 350 milliseconds
         if now - self.last_update > 350:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
@@ -111,10 +114,6 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
 
 
-
-
-
-
         
 class Wall(Sprite):
     def __init__(self, game, x, y):
@@ -132,12 +131,24 @@ class Wall(Sprite):
         print("wall initialized...")
         print(self.rect.x)
         print(self.rect.y)
- 
+        self.last_update = 0
+        self.current_frame = 0    
+        print('player instantiated')
+        # print(self.pos) 
+
+# Mob sprite
 class Mob(Sprite):
+    def load_images(self):
+        self.idle_frames = [self.spritesheet.get_image( 0 ,TILESIZE ,TILESIZE , TILESIZE ),
+                            self.spritesheet.get_image(TILESIZE , 0,TILESIZE  , TILESIZE )
+                            ]
+        
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "self.spritesheet(1).png"))
+        self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -151,8 +162,21 @@ class Mob(Sprite):
         print("Mobs = 1")
         print(self.rect.x)
         print(self.rect.y)
+        self.last_update = 0
+        self.current_frame = 0   
+ 
 
-    
+    def animate(self):
+        # use the time element to get now
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
+            bottom = self.rect.bottom
+            self.image = self.idle_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+        
 
  
     def update(self):
@@ -165,3 +189,4 @@ class Mob(Sprite):
        # self.y += self.vy * self.game.dt * self.speed
         self.rect.y = self.y
         #print(self.rect.x)
+        self.animate()

@@ -62,7 +62,7 @@ class Game:
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == 'M':
-                    pass
+                    Mob(self, col, row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
