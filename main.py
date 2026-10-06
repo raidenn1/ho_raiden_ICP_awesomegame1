@@ -85,12 +85,31 @@ class Game:
                     self.playing = False
                 self.running = False
 
+
+    def draw_text(self, text, size, color, x, y):
+        # gets the font from the computer
+        font_name = pg.font.match_font('arial')
+        # creates the actual font that will be used
+        font = pg.font.Font(font_name, size)
+        # creates something that pygame can actually use to draw
+        text_surface = font.render(text, True, color)
+        # creates a rectangle around the text that can keep track
+        text_rect = text_surface.get_rect()
+        # positions with x and y
+        text_rect.midtop = (x,y)
+        # actually draws it on the screen
+        self.screen.blit(text_surface, text_rect)
+
+
     def update(self):
         self.all_sprites.update()
 
     def draw(self):
+        # this order matters -- first things are on the bottom because they are the 'first' to be drawn
+        # the last lines in this method are drawn on top or last
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
         pg.display.flip()
 
 if __name__ == "__main__":
