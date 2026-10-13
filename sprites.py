@@ -57,7 +57,8 @@ class Player(Sprite):
         self.vel = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
         self.last_update = 0
-        self.current_frame = 0    
+        self.current_frame = 0  
+        self.coins = 0  
         print('player instantiated')
         print(self.pos)   
  
@@ -107,6 +108,9 @@ class Player(Sprite):
                             ]
     def update(self):
         self.get_keys()
+        hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
+        if hits:
+            self.coins += 1
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel* self.game.dt
@@ -138,6 +142,30 @@ class Wall(Sprite):
         self.current_frame = 0    
         print('player instantiated')
         # print(self.pos) 
+
+
+class Coin(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_coins
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+        print("Coin initialized...")
+        print(self.rect.x)
+        print(self.rect.y)
+        self.last_update = 0
+        self.current_frame = 0    
+    def update(self):
+        pass
+
+
+      
 
 # Mob sprite
 class Mob(Sprite):        
@@ -192,6 +220,7 @@ class Mob(Sprite):
                     self.rect.bottom = bottom
             elif self.dir == "right":
                 pass
+    # used auto complete by creating a chase method using pos vectors and obj as a parameter            
     def chase(self, obj):
         if self.pos.x < obj.pos.x:
             self.vel.x = self.speed
@@ -220,3 +249,6 @@ class Mob(Sprite):
             self.hit_rect.centery = self.pos.y
             collide_with_walls(self, self.game.all_walls, 'y')
             self.rect.center = self.hit_rect.center
+
+
+

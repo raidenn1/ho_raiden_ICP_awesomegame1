@@ -35,6 +35,7 @@ Output: Graphics - things are drawn, sounds: jump, power, walking, haptics
 
 #game engine starting
 class Game:
+    # provides first attributes of the class
     def __init__(self):
         pg.init()
         pg.mixer.init()
@@ -45,11 +46,13 @@ class Game:
         self.playing = True
         self.clock = pg.time.Clock()
         pg.time.get_ticks()
+    # responsible for images, audio, and things for use
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio')
         self.map = Map(path.join(self.game_dir, map))
+    # loads the sprites and tilemap       
     def new(self):
         self.load_data('level1.txt')
         print(self.map.data)
@@ -63,11 +66,13 @@ class Game:
                     Wall(self, col, row)
                 if tile == 'M':
                     Mob(self, col, row)
+                if tile == 'C':
+                    Coin(self, col, row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
-
+    # core game engine to keep running
     def run(self):
         self.playing = True
         while self.playing:
@@ -77,7 +82,7 @@ class Game:
             self.draw()
 #           print(pg.time.get_ticks())
 
-            
+    # gets the user inputs            
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -100,18 +105,21 @@ class Game:
         # actually draws it on the screen
         self.screen.blit(text_surface, text_rect)
 
-
+    # updates all sprites???
     def update(self):
         self.all_sprites.update()
 
+    # draws FPS on screen
     def draw(self):
         # this order matters -- first things are on the bottom because they are the 'first' to be drawn
         # the last lines in this method are drawn on top or last
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
+        self.draw_text(f"Coins:{self.player.coins}" + 24, WHITE, WIDTH/2, HEIGHT/7)
         pg.display.flip()
 
+# game class instantiated
 if __name__ == "__main__":
     g = Game()
 
