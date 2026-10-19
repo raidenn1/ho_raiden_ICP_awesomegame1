@@ -13,6 +13,10 @@ RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 ORANGE = (255, 165, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+NEON_BLUE = (33, 33, 222)
+CYAN = (14, 165, 233)
+NAVY = (15, 23, 42)
 
 # player settings
 PLAYER_SPEED = 300

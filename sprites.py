@@ -111,6 +111,8 @@ class Player(Sprite):
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
             self.coins += 1
+            self.game.pickup_snd.play()
+            
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel* self.game.dt
@@ -128,7 +130,7 @@ class Wall(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(GREEN)
+        self.image.fill(CYAN)
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0,0
         self.x = x*TILESIZE
@@ -150,8 +152,9 @@ class Coin(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(BLUE)
+        pg.draw.circle(self.image, (YELLOW), (16, 16), 16)
         self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)
         self.x = x*TILESIZE
         self.y = y*TILESIZE
         self.rect.x = self.x

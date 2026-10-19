@@ -51,6 +51,7 @@ class Game:
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio')
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "completetask_0.mp3"))
         self.map = Map(path.join(self.game_dir, map))
     # loads the sprites and tilemap       
     def new(self):
@@ -73,6 +74,8 @@ class Game:
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
+        pg.mixer.music.load(path.join(self.snd_dir, "8_bit_music_background.wav"))
+        pg.mixer.music.play(loops=-1)
     # core game engine to keep running
     def run(self):
         self.playing = True
@@ -114,10 +117,10 @@ class Game:
     def draw(self):
         # this order matters -- first things are on the bottom because they are the 'first' to be drawn
         # the last lines in this method are drawn on top or last
-        self.screen.fill(BGCOLOR)
+        self.screen.fill(NAVY)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
-        # self.draw_text(f"Coins:{self.player.coins}" + 24, WHITE, WIDTH/2, HEIGHT/7)
+        self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
         pg.display.flip()
 
 # game class instantiated
