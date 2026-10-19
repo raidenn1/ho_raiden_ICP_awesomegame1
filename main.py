@@ -59,7 +59,8 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
-        
+        self.all_coins = pg.sprite.Group()
+
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == '1':
@@ -116,7 +117,7 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text(f"Coins:{self.player.coins}" + 24, WHITE, WIDTH/2, HEIGHT/7)
+        # self.draw_text(f"Coins:{self.player.coins}" + 24, WHITE, WIDTH/2, HEIGHT/7)
         pg.display.flip()
 
 # game class instantiated
