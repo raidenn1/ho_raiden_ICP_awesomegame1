@@ -30,19 +30,13 @@ class Spritesheet:
         return image        
 
 class Cooldown:
-    def __init__(self, time):
-        self.start_time = 0
-        self.time = time
-        self.current_time = self.time
-
+    def __init__(self):
+        self.event_time = 0
+        self.current_time = 0
+        self.delta = 0
     def ticking(self):
         self.current_time = floor((pg.time.get_ticks())/1000)
         self.delta = self.current_time = self.event_time
     def start(self):
         self.start_time = pg.time.get_ticks()
-    def ready(self):
-        self.current_time = pg.time.get_ticks()
-
-        if self.current_time - self.start_time >= self.time:
-            return True
-        return False
+   

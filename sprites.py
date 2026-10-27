@@ -112,7 +112,8 @@ class Player(Sprite):
         self.get_keys()
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
-            Particle(self.game, hits[0].pos.x, hits[0].pos.y)
+            for i in range(10):
+                Particle(self.game, hits[0].pos.x, hits[0].pos.y)
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
@@ -155,24 +156,27 @@ class Particle(Sprite):
         self.image = pg.Surface((TILESIZE/8, TILESIZE/8))
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.vx, self.vy = 0,0
-        self.x = x
-        self.y = y
-        self.speed = 25
-        self.rect.x = self.x
-        self.rect.y = self.y
-        self.countdown = Cooldown(5000)
+        self.vel = vec(randint(-1,1), randint(-1,1))
+        self.pos = vec(x, y)
+        self.speed = 5
+        self.countdown = Cooldown()
         self.countdown.event_time = floor(pg.time.get_ticks()/1000)
-        print(self.rect.x)
-        print(self.rect.y)
-        print(str(len(self.game.all_particles)))
+        # print(self.rect.x)
+        # print(self.rect.y)
+        # print(str(len(self.game.all_particles)))
         
     def update(self):
         self.countdown.ticking()
-        self.rect.x += self.speed*randint(-5,5)
-        self.rect.y += self.speed*randint(-5,5)
-        if self.countdown.delta > 3:
-            self.kill()
+
+        self.pos += self.vel * self.speed * self.game.dt
+        if self.countdown.delta > 1:
+            # self.kill()
+            print("im dead")
+        print(self.countdown.delta)
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+
+      
 
 class Coin(Sprite):
     def __init__(self, game, x, y):
