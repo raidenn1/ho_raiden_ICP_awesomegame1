@@ -53,14 +53,15 @@ class Player(Sprite):
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image = self.spritesheet.get_image(0,0, TILESIZE, TILESIZE)
         self.image.set_colorkey(ORANGE)
-        # self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)
+        self.acc = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
         self.last_update = 0
         self.current_frame = 0  
         self.coins = 0  
+        self.jumping = False
         print('player instantiated')
         print(self.pos)   
  
@@ -68,26 +69,32 @@ class Player(Sprite):
         # reset v to zero
         #listen for events specific to keys
         #change the velocity based on key presses
-        self.vel = vec(0,0)
+        # self.vel = vec(0,0)       
         self.vx, self.vy = 0,0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
-            self.vel.x = -PLAYER_SPEED
+            self.acc.x = -PLAYER_SPEED
+            # self.vel.x = -PLAYER_SPEED
  
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
-            self.vel.x = PLAYER_SPEED
+            self.acc.x = PLAYER_SPEED
+            # self.vel.x = PLAYER_SPEED
  
         if keys[pg.K_UP] or keys[pg.K_w]:
-            self.vel.y = -PLAYER_SPEED
+            self.acc.y = -PLAYER_SPEED
+            # self.vel.y = -PLAYER_SPEED
  
         if keys[pg.K_DOWN] or keys[pg.K_s]:
-            self.vel.y = PLAYER_SPEED
+            self.acc.y = PLAYER_SPEED
+            # self.vel.y = PLAYER_SPEED
         
-        if self.vel.x != 0 and self.vel.y !=0:
-            self.vel *= 0.7071
+        # if self.vel.x != 0 and self.vel.y !=0:
+            # self.vel *= 0.7071
             # self.vel.normalize()
             
 # gets the ticks to refresh the image making animation
+    def jump(self):
+        pass
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -109,10 +116,17 @@ class Player(Sprite):
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
     def update(self):
+        self.acc = vec(0,9.8)
         self.get_keys()
+        self.animate()
+        self.acc.x += self.vel.x * PLAYER_FRIC
+        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
+        self.rect.center = self.pos
+        self.pos += self.vel + 0.5 * self.acc
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
-            for i in range(10):
+            for i in range(25):
                 Particle(self.game, hits[0].pos.x, hits[0].pos.y)
             self.coins += 1
             self.game.pickup_snd.play()
@@ -120,6 +134,7 @@ class Player(Sprite):
 
         self.animate()
         self.rect.center = self.pos
+        self.pos += self.vel + 0.5 * self.acc
         self.pos += self.vel* self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
@@ -143,8 +158,8 @@ class Wall(Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         print("wall initialized...")
-        print(self.rect.x)
-        print(self.rect.y)
+        # print(self.rect.x)
+        # print(self.rect.y)
         self.last_update = 0
         self.current_frame = 0    
      
@@ -156,23 +171,22 @@ class Particle(Sprite):
         self.image = pg.Surface((TILESIZE/8, TILESIZE/8))
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.vel = vec(randint(-1,1), randint(-1,1))
+        self.vel = vec(randint(-180,180), randint(-180,180))
         self.pos = vec(x, y)
         self.speed = 5
-        self.countdown = Cooldown()
+        self.countdown = Timer()
         self.countdown.event_time = floor(pg.time.get_ticks()/1000)
         # print(self.rect.x)
         # print(self.rect.y)
         # print(str(len(self.game.all_particles)))
         
     def update(self):
-        self.countdown.ticking()
-
+        # countdown ticking
+        # self.countdown.ticking()
+        print(self.countdown.get_delta())
         self.pos += self.vel * self.speed * self.game.dt
-        if self.countdown.delta > 1:
-            # self.kill()
-            print("im dead")
-        print(self.countdown.delta)
+        if self.countdown.get_delta() > 2:
+            self.kill()
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
 
@@ -188,15 +202,12 @@ class Coin(Sprite):
         self.rect = self.image.get_rect()
         self.image.set_colorkey(BLACK)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
-        # self.x = x*TILESIZE
-        # self.y = y*TILESIZE
+        # changes x and y position 
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
-        # self.rect.x = self.x
-        # self.rect.y = self.y
         print("Coin initialized...")
-        print(self.rect.x)
-        print(self.rect.y)
+        # print(self.rect.x)
+        # print(self.rect.y)
         self.last_update = 0
         self.current_frame = 0    
     def update(self):
@@ -232,8 +243,8 @@ class Mob(Sprite):
         self.hit_rect = MOB_HIT_RECT
         print("mob initialized...")
         print("Mobs = 1")
-        print(self.rect.x)
-        print(self.rect.y)
+        # print(self.rect.x)
+        # print(self.rect.y)
          
  
 
