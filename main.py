@@ -15,6 +15,8 @@ from settings import *
 #imports utils
 from utils import *
 
+from math import floor
+
 '''
 Why are wer making game a class?
 Why is it capitalized
@@ -30,6 +32,15 @@ Process: cursor position, position of the player, score, enemy position, velocit
 aim in FPS,
 
 Output: Graphics - things are drawn, sounds: jump, power, walking, haptics
+
+GOALS: Zombie Survival game -- Last as long as many waves as you can 
+
+RULES: Players take damage from the zombies and progresively gets harder 
+
+FEEDBACK: I can shoot the zombies to survive
+
+FREEDOM: You can move freely, dodge the zombies, and shoot them 
+
 
 '''
 

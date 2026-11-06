@@ -61,6 +61,7 @@ class Player(Sprite):
         self.last_update = 0
         self.current_frame = 0  
         self.coins = 0  
+        self.cofric = -0.1
         self.jumping = False
         print('player instantiated')
         print(self.pos)   
@@ -87,6 +88,8 @@ class Player(Sprite):
         if keys[pg.K_DOWN] or keys[pg.K_s]:
             self.acc.y = PLAYER_SPEED
             # self.vel.y = PLAYER_SPEED
+        if keys[pg.K_SPACE]:
+            self.jump()
         
         # if self.vel.x != 0 and self.vel.y !=0:
             # self.vel *= 0.7071
@@ -115,10 +118,27 @@ class Player(Sprite):
         self.run_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
+    def jump(self):
+        # jump only if standing on a platform
+        self.rect.y += 2
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+        self.rect.y -= 2
+        if hits and not self.jumping:
+            self.game.jump_sound.play()
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
+    
+    def is_jumping(self):
+        if self.vel.y > 0:
+            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+            if hits:
+                self.jumping = False
+
     def update(self):
         self.acc = vec(0,9.8)
         self.get_keys()
         self.animate()
+        self.is_jumping()
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
@@ -131,7 +151,8 @@ class Player(Sprite):
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
-
+        if collide_with_walls(self, self.game.all_walls, 'y'):
+            self.jumping = False
         self.animate()
         self.rect.center = self.pos
         self.pos += self.vel + 0.5 * self.acc
