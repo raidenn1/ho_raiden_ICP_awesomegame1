@@ -15,6 +15,8 @@ from settings import *
 #imports utils
 from utils import *
 
+import math
+
 from math import floor
 
 '''

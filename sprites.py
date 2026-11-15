@@ -9,6 +9,7 @@ from os import path
 
 vec = pg.math.Vector2
 
+import math
 
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
@@ -56,51 +57,69 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)
-        # self.acc = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
+        self.acc = vec(0,0)
         self.last_update = 0
         self.current_frame = 0  
         self.coins = 0  
-        # self.cofric = -0.1
-       # self.jumping = False
+        self.cofric = -0.1
         print('player instantiated')
         print(self.pos)   
+
+    def player_rotation(self):
+        #gets the position of mouse
+        self.mouse_coords = pg.mouse.get_pos()
+        #gets difference in x and y
+        self.x_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centerx)
+        self.y_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centery)
+        #converts angle to degrees & atan uses x and y dist. into angles (used CS50 for the math and atan stuff)
+        self.angle = math.degrees(math.atan(self.y_change_mouse_player, self.x_change_mouse_player))
+        #rotates image
+        self.image = pg.transform.rotate(self.base_player_image, -self.angle)
+        #keeps hitbox same
+        self.rect = self.image.get_rect(center = self.hit_rect.center)
  
     def get_keys(self):
         # reset v to zero
         #listen for events specific to keys
         #change the velocity based on key presses
-        self.vel = vec(0,0)       
-        self.vx, self.vy = 0,0
+
+        # self.vel = vec(0,0)       
+        # self.vx, self.vy = 0,0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
-            # self.acc.x = -PLAYER_SPEED
-            self.vel.x = -PLAYER_SPEED
-            print("going left")
+            self.acc.x = -PLAYER_ACC
+            # self.vel.x = -PLAYER_SPEED
+            # print("going left")
  
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
-            # self.acc.x = PLAYER_SPEED
-            self.vel.x = PLAYER_SPEED
+            self.acc.x = PLAYER_ACC
+            # self.vel.x = PLAYER_SPEED
  
         if keys[pg.K_UP] or keys[pg.K_w]:
-            # self.acc.y = -PLAYER_SPEED
-            self.vel.y = -PLAYER_SPEED
+            self.acc.y = -PLAYER_ACC
+            # self.vel.y = -PLAYER_SPEED
  
         if keys[pg.K_DOWN] or keys[pg.K_s]:
-            # self.acc.y = PLAYER_SPEED
-            self.vel.y = PLAYER_SPEED
+            self.acc.y = PLAYER_ACC
+            # self.vel.y = PLAYER_SPEED
   
         if self.vel.x != 0 and self.vel.y !=0:
             self.vel *= 0.7071
             # self.vel.normalize()
             
 # gets the ticks to refresh the image making animation
-    def jump(self):
-        pass
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
         # gets ticks for exactly 350 milliseconds
+
+
+        self.hit_rect.center = self.pos
+        self.rect.center = self.hit_rect.center
+
+
+        
         if now - self.last_update > 350:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
@@ -119,13 +138,12 @@ class Player(Sprite):
                             ]
 
     def update(self):
-        # self.acc = vec(0,9.8)
+        self.acc = vec(0,0)
         self.get_keys()
         self.animate()
-        # self.is_jumping()
-        # self.acc.x += self.vel.x * PLAYER_FRIC
-        # self.acc.y += self.vel.y * PLAYER_FRIC
-        #  self.vel += self.acc
+        self.acc.x += self.vel.x * PLAYER_FRIC
+        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
         self.rect.center = self.pos
         # self.pos += self.vel + 0.5 * self.acc
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
