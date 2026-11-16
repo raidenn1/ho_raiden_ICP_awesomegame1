@@ -49,12 +49,13 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "self.spritesheet(1).png"))
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "top_down_character.png"))
         self.load_images()
-        self.image = pg.Surface((TILESIZE, TILESIZE))
+        # self.image = pg.Surface((0, 0))
         self.image = self.spritesheet.get_image(0,0, TILESIZE, TILESIZE)
-        self.image.set_colorkey(ORANGE)
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
+        self.base_player_image = self.image
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
@@ -73,7 +74,7 @@ class Player(Sprite):
         self.x_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centerx)
         self.y_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centery)
         #converts angle to degrees & atan uses x and y dist. into angles (used CS50 for the math and atan stuff)
-        self.angle = math.degrees(math.atan(self.y_change_mouse_player, self.x_change_mouse_player))
+        self.angle = math.degrees(math.atan2(self.y_change_mouse_player, self.x_change_mouse_player))
         #rotates image
         self.image = pg.transform.rotate(self.base_player_image, -self.angle)
         #keeps hitbox same
@@ -117,14 +118,13 @@ class Player(Sprite):
 
         self.hit_rect.center = self.pos
         self.rect.center = self.hit_rect.center
-
-
+       
         
         if now - self.last_update > 350:
             self.last_update = now
-            self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
+            # self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
             bottom = self.rect.bottom
-            self.image = self.idle_frames[self.current_frame]
+            # self.image = self.idle_frames[self.current_frame]
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
     def load_images(self):
@@ -132,15 +132,16 @@ class Player(Sprite):
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
 
-        # x , y, width, height
-        self.run_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
-                            self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
-                            ]
+    #     # x , y, width, height
+    #     self.run_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
+    #                         self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
+    #                         ]
 
     def update(self):
         self.acc = vec(0,0)
         self.get_keys()
-        self.animate()
+        # self.animate()
+        self.player_rotation()
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
@@ -153,7 +154,7 @@ class Player(Sprite):
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
-        self.animate()
+        # self.animate()
         self.rect.center = self.pos
         # self.pos += self.vel + 0.5 * self.acc
         self.pos += self.vel* self.game.dt

@@ -84,7 +84,6 @@ class Game:
             try:
                 self.high_score = int(file.read())
             except:
-                # self.highscore = 0
                 print("high score not read")
     # loads the sprites and tilemap       
     def new(self):
@@ -114,6 +113,9 @@ class Game:
     def run(self):
         self.playing = True
         while self.playing:
+            self.screen.blit(self.player.image, self.player.rect)
+            # pg.draw.rect(self.screen, "red", self.player.hit_rect, width= 2)
+            # pg.draw.rect(self.screen, "yellow", self.player.rect, width= 2)
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
@@ -149,6 +151,7 @@ class Game:
     # updates all sprites???
     def update(self):
         self.all_sprites.update()
+        
 
     # draws FPS on screen
     def draw(self):
