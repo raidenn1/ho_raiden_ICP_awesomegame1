@@ -52,8 +52,13 @@ class Player(Sprite):
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "top_down_character.png"))
         self.load_images()
         # self.image = pg.Surface((0, 0))
-        self.image = self.spritesheet.get_image(0,0, TILESIZE, TILESIZE)
-        self.image.set_colorkey(WHITE)
+        # self.image = self.spritesheet.get_image(0,0,TILESIZE * 2, TILESIZE *2)
+        # ----- ai help with 1 line -----
+        # convert alpha to help w/ transparency
+        self.image = pg.image.load(path.join(self.game.img_dir, "top_down_character.png")).convert_alpha()
+        # --------------
+        self.image = pg.transform.smoothscale(self.image, (96, 72))
+        # self.image.set_colorkey(ORANGE)
         self.rect = self.image.get_rect()
         self.base_player_image = self.image
         self.hit_rect = PLAYER_HIT_RECT
@@ -66,19 +71,20 @@ class Player(Sprite):
         self.cofric = -0.1
         print('player instantiated')
         print(self.pos)   
-
+        
     def player_rotation(self):
         #gets the position of mouse
         self.mouse_coords = pg.mouse.get_pos()
         #gets difference in x and y
         self.x_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centerx)
-        self.y_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centery)
+        self.y_change_mouse_player = (self.mouse_coords[1] - self.hit_rect.centery)
         #converts angle to degrees & atan uses x and y dist. into angles (used CS50 for the math and atan stuff)
         self.angle = math.degrees(math.atan2(self.y_change_mouse_player, self.x_change_mouse_player))
-        #rotates image
-        self.image = pg.transform.rotate(self.base_player_image, -self.angle)
+        #rotates image and -90 to correct difference between atan2() right facing
+        self.image = pg.transform.rotate(self.base_player_image, -self.angle - 90)
         #keeps hitbox same
         self.rect = self.image.get_rect(center = self.hit_rect.center)
+   
  
     def get_keys(self):
         # reset v to zero
