@@ -69,6 +69,8 @@ class Player(Sprite):
         self.current_frame = 0  
         self.coins = 0  
         self.cofric = -0.1
+        self.shoot = False
+        self.shoot_cooldown = 0
         print('player instantiated')
         print(self.pos)   
         
@@ -110,11 +112,23 @@ class Player(Sprite):
         if keys[pg.K_DOWN] or keys[pg.K_s]:
             self.acc.y = PLAYER_ACC
             # self.vel.y = PLAYER_SPEED
+
+        if pg.mouse.get_pressed() == (1, 0, 0) or keys[pg.K_SPACE]:
+            self.shoot = True
+            self.is_shooting()
+        else:
+            self.shoot = False
+
   
         if self.vel.x != 0 and self.vel.y !=0:
             self.vel *= 0.7071
             # self.vel.normalize()
-            
+
+    def is_shooting(self):
+        if self.shoot_cooldown = 0:
+            self.shoot_cooldown = SHOOT_COOLDOWN
+            # finish off later and come back
+    
 # gets the ticks to refresh the image making animation
     def animate(self):
         # use the time element to get now
@@ -170,6 +184,8 @@ class Player(Sprite):
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
 
+        if self.shoot_cooldown > 0:
+            self.shoot_cooldown -= 1
 
         
 class Wall(Sprite):
