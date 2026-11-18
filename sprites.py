@@ -113,6 +113,7 @@ class Player(Sprite):
             self.acc.y = PLAYER_ACC
             # self.vel.y = PLAYER_SPEED
 
+        # left click & space = shoot 
         if pg.mouse.get_pressed() == (1, 0, 0) or keys[pg.K_SPACE]:
             self.shoot = True
             self.is_shooting()
@@ -125,9 +126,11 @@ class Player(Sprite):
             # self.vel.normalize()
 
     def is_shooting(self):
-        if self.shoot_cooldown = 0:
+        if self.shoot_cooldown == 0:
             self.shoot_cooldown = SHOOT_COOLDOWN
-            # finish off later and come back
+            spawn_bullet_pos = self.pos
+            self.bullet = Bullet(spawn_bullet_pos[0], spawn_bullet_pos[1], self.angle)
+          
     
 # gets the ticks to refresh the image making animation
     def animate(self):
@@ -206,7 +209,39 @@ class Wall(Sprite):
         # print(self.rect.y)
         self.last_update = 0
         self.current_frame = 0    
-     
+
+class Bullet(Sprite):
+    def __init__(self, game, x, y, angle):
+        # Sprite.__init__(self, self.groups)
+        super().__init__()
+        self.image = pg.image.load(path.join(self.game.img_dir, "bullet.png")).convert_alpha()
+        self.image = pg.transform.rotozoom(self.image, 0, BULLET_SCALE)
+        self.rect = self.image.get_rect()
+        self.image.center = (x, y)
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.speed = BULLET_SPEED
+        # youtube for the math
+        # cosine is to help determine where to move horizontally
+        # the (2*math.pi/360)) is to turn the angles into Radiana
+        self.x_vel = math.cos(self.angle (2*math.pi/360)) * BULLET_SPEED
+        # sin for where to move vertically
+        self.y_vel = math.sin(self.angle (2*math.pi/360)) * BULLET_SPEED
+
+    def bullet_movement(self):
+        # actually shoots the bullets by adding the value of x & y
+        self.x += self.x_vel
+        self.y += self.y_vel
+
+        #changes it into an integer to be more accurate
+        self.rect.x += int(self.x)
+        self.rect.y += int(self.y)
+
+    def update(self):
+        # calls the function
+        self.bullet_movement()
+
 class Particle(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_particles

@@ -94,6 +94,7 @@ class Game:
         self.all_mobs = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
+        self.all_bullets = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
@@ -148,7 +149,7 @@ class Game:
         # actually draws it on the screen
         self.screen.blit(text_surface, text_rect)
 
-    # updates all sprites???
+    # updates all sprites
     def update(self):
         self.all_sprites.update()
         
