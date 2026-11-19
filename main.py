@@ -95,6 +95,7 @@ class Game:
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
         self.all_bullets = pg.sprite.Group()
+    
 
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):

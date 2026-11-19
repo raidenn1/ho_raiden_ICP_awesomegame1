@@ -129,7 +129,8 @@ class Player(Sprite):
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = SHOOT_COOLDOWN
             spawn_bullet_pos = self.pos
-            self.bullet = Bullet(spawn_bullet_pos[0], spawn_bullet_pos[1], self.angle)
+            #instantiates it [] for x &y values
+            self.bullet = Bullet(self.game, spawn_bullet_pos[0], spawn_bullet_pos[1], self.angle)
           
     
 # gets the ticks to refresh the image making animation
@@ -212,31 +213,53 @@ class Wall(Sprite):
 
 class Bullet(Sprite):
     def __init__(self, game, x, y, angle):
-        # Sprite.__init__(self, self.groups)
-        super().__init__()
+        #connects game to bulelt
+        self.game = game
+        #loads into both sprite gruops
+        super().__init__(game.all_sprites, game.all_bullets)
+        #the angle the player is already rotating at
+        self.angle = angle
+        #image 
         self.image = pg.image.load(path.join(self.game.img_dir, "bullet.png")).convert_alpha()
-        self.image = pg.transform.rotozoom(self.image, 0, BULLET_SCALE)
+        #same issue w/ player rotation just subtract the angle by -90 
+        #-90 to offset the image 
+        self.image = pg.transform.rotozoom(self.image, -self.angle - 90, BULLET_SCALE)
+        #rectangle around image
         self.rect = self.image.get_rect()
-        self.image.center = (x, y)
+        #center of bullet
+        self.rect.center = (x, y)
+        #x & y positions
         self.x = x
         self.y = y
-        self.angle = angle
+        
         self.speed = BULLET_SPEED
-        # youtube for the math
-        # cosine is to help determine where to move horizontally
-        # the (2*math.pi/360)) is to turn the angles into Radiana
-        self.x_vel = math.cos(self.angle (2*math.pi/360)) * BULLET_SPEED
-        # sin for where to move vertically
-        self.y_vel = math.sin(self.angle (2*math.pi/360)) * BULLET_SPEED
+        #youtube for the math
+
+    
+        #the (2*math.pi/360)) is to turn the angles into Radians
+          
+        #angle_rad = self.angle * (2 * math.pi / 360) ***original math from youtube
+        #math did not work and found simplier way to turn into radians
+        #pg expects it in radians
+        angle_rad = math.radians(self.angle)
+
+        #where to move horizontal velocity
+        self.x_vel = math.cos(angle_rad) * BULLET_SPEED
+        #where to move vertical velocity
+        self.y_vel = math.sin(angle_rad) * BULLET_SPEED
 
     def bullet_movement(self):
-        # actually shoots the bullets by adding the value of x & y
+        #actually shoots the bullets by adding the value of x & y
+        #each second it is adding value to move
         self.x += self.x_vel
         self.y += self.y_vel
 
-        #changes it into an integer to be more accurate
-        self.rect.x += int(self.x)
-        self.rect.y += int(self.y)
+        ##changes it into an integer to be more accurate
+        #self.rect.x += int(self.x)
+        #self.rect.y += int(self.y)
+        #constantly updating the center to draw image
+        self.rect.center = (int(self.x), int(self.y))
+
 
     def update(self):
         # calls the function
