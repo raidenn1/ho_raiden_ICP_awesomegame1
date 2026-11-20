@@ -53,11 +53,12 @@ class Player(Sprite):
         self.load_images()
         # self.image = pg.Surface((0, 0))
         # self.image = self.spritesheet.get_image(0,0,TILESIZE * 2, TILESIZE *2)
-        # ----- ai help with 1 line -----
+        # ----- ai help with line -----
         # convert alpha to help w/ transparency
         self.image = pg.image.load(path.join(self.game.img_dir, "top_down_character.png")).convert_alpha()
-        # --------------
+        #resize
         self.image = pg.transform.smoothscale(self.image, (96, 72))
+        # -----------------
         # self.image.set_colorkey(ORANGE)
         self.rect = self.image.get_rect()
         self.base_player_image = self.image
@@ -126,10 +127,11 @@ class Player(Sprite):
             # self.vel.normalize()
 
     def is_shooting(self):
+        # update() also repeatedly decreasing cooldown
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = SHOOT_COOLDOWN
             spawn_bullet_pos = self.pos
-            #instantiates it [] for x &y values
+            #instantiates it tuples for x &y values
             self.bullet = Bullet(self.game, spawn_bullet_pos[0], spawn_bullet_pos[1], self.angle)
           
     
@@ -139,10 +141,9 @@ class Player(Sprite):
         now = pg.time.get_ticks()
         # gets ticks for exactly 350 milliseconds
 
-
+        #recenters my hitbox to player location
         self.hit_rect.center = self.pos
         self.rect.center = self.hit_rect.center
-       
         
         if now - self.last_update > 350:
             self.last_update = now
@@ -213,10 +214,10 @@ class Wall(Sprite):
 
 class Bullet(Sprite):
     def __init__(self, game, x, y, angle):
+        self.groups = game.all_sprites, game.all_walls
+        Sprite.__init__(self, self.groups)
         #connects game to bulelt
         self.game = game
-        #loads into both sprite gruops
-        super().__init__(game.all_sprites, game.all_bullets)
         #the angle the player is already rotating at
         self.angle = angle
         #image 
@@ -254,10 +255,10 @@ class Bullet(Sprite):
         self.x += self.x_vel
         self.y += self.y_vel
 
-        ##changes it into an integer to be more accurate
         #self.rect.x += int(self.x)
         #self.rect.y += int(self.y)
         #constantly updating the center to draw image
+        #integer bc pg uses whole pixel coordinates
         self.rect.center = (int(self.x), int(self.y))
 
 
@@ -324,11 +325,14 @@ class Mob(Sprite):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "self.spritesheet(1).png"))
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "zombie_walk.png"))
         self.load_images()
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(RED)
-        self.image = self.spritesheet.get_image(0,0,TILESIZE, TILESIZE)
+        # self.image = pg.Surface((46, 72))
+        self.image = pg.image.load(path.join(self.game.img_dir, "zombie_walk.png")).convert_alpha()
+        self.image.set_colorkey(BLACK)
+        # self.image = self.spritesheet.get_image(0,0, 46, 72)
+        self.image = self.run_frames[0]
+        # self.image = pg.transform.smoothscale(self.image, (200, 312))
         self.rect = self.image.get_rect()
         self.speed = 1
         self.vx, self.vy = 100,0
@@ -351,12 +355,26 @@ class Mob(Sprite):
  
 
     def load_images(self):
-            self.idle_frames = [self.spritesheet.get_image(64,0,TILESIZE, TILESIZE),
-                                self.spritesheet.get_image(96,0,TILESIZE, TILESIZE)
+            self.idle_frames = [self.spritesheet.get_image(ZOMBIE_WIDTH, ZOMBIE_HEIGHT, ZOMBIE_WIDTH, ZOMBIE_HEIGHT),
+                                self.spritesheet.get_image(0, 0, ZOMBIE_WIDTH, ZOMBIE_SP_HEIGHT)
                                 ]
-            self.run_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
-                                self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
-                                ]    
+            self.run_frames = [self.spritesheet.get_image(0,0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(200, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(400, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(600, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(800, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(1000, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(1200, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(1400, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(1600, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT),
+                                self.spritesheet.get_image(1800, 0, ZOMBIE_SP_WIDTH, ZOMBIE_SP_HEIGHT)
+                                ] 
+            #resizing using ai
+            #learned this is a list comprehension
+            #this resizes each zombie frame through frame
+            self.run_frames = [pg.transform.smoothscale(image, (ZOMBIE_WIDTH, ZOMBIE_HEIGHT))
+                                for image in self.run_frames]
+                                                                                
     def animate(self):
             # use the time element to get now
             now = pg.time.get_ticks()
@@ -367,10 +385,20 @@ class Mob(Sprite):
                     bottom = self.rect.bottom
                     self.image = self.idle_frames[self.current_frame]
                     self.image.set_colorkey(BLACK)
-                    self.rect = self.image.get_rect()
+                    # self.rect = self.image.get_rect()
                     self.rect.bottom = bottom
-            elif self.dir == "right":
-                pass
+            # added right or left walking animation
+            elif self.dir == "right" or self.dir == "left":
+                # copy and pasted top code
+                if now - self.last_update > 100:
+                    self.last_update = now
+                    self.current_frame = (self.current_frame + 1) % len(self.run_frames)
+                    center = self.rect.center
+                    self.image = self.run_frames[self.current_frame]
+                    self.image.set_colorkey(BLACK)
+                    # self.rect = self.image.get_rect()
+                    self.rect.center = center
+                    pass
     # used auto complete by creating a chase method using pos vectors and obj as a parameter            
     def chase(self, obj):
         if self.pos.x < obj.pos.x:
