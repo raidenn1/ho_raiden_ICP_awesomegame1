@@ -266,6 +266,26 @@ class Bullet(Sprite):
         # calls the function
         self.bullet_movement()
 
+class Camera(pg.sprite.Group):
+    def __init__(self):
+        self.groups = pg.sprite.Group
+        self.offset = pg.math.Vector2()
+        self.floor_rect = background.get_rect(topleft = (0,0))
+        
+    def custom_draw(self):
+        # makes the camera go opposite direction of player
+        self.offset.x = player.rect.centerx - WIDTH // 2
+        self.offset.y = player.rect.centery - HEIGHT // 2
+
+        floor_offset_pos = self.floor_rect.topleft - self.offset
+        screen.blit(background, floor_offset_pos)
+
+        for sprite in self.all_sprites:
+            offset_pos = sprite.rect.topleft - self.offset
+            self.blit(sprite.image, offset_pos)
+        
+
+
 class Particle(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_particles
