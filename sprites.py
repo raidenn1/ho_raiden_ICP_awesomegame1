@@ -79,8 +79,8 @@ class Player(Sprite):
         #gets the position of mouse
         self.mouse_coords = pg.mouse.get_pos()
         #gets difference in x and y
-        self.x_change_mouse_player = (self.mouse_coords[0] - self.hit_rect.centerx)
-        self.y_change_mouse_player = (self.mouse_coords[1] - self.hit_rect.centery)
+        self.x_change_mouse_player = (self.mouse_coords[0] - WIDTH // 2)
+        self.y_change_mouse_player = (self.mouse_coords[1] - HEIGHT // 2)
         #converts angle to degrees & atan uses x and y dist. into angles (used CS50 for the math and atan stuff)
         self.angle = math.degrees(math.atan2(self.y_change_mouse_player, self.x_change_mouse_player))
         #rotates image and -90 to correct difference between atan2() right facing
@@ -167,6 +167,7 @@ class Player(Sprite):
         self.get_keys()
         # self.animate()
         self.player_rotation()
+        print(self.rect.center)
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
@@ -198,8 +199,8 @@ class Wall(Sprite):
         self.groups = game.all_sprites, game.all_walls
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(CYAN)
+        self.image = pg.Surface(((TILESIZE, TILESIZE)), pg.SRCALPHA)
+        self.image.fill((0, 0, 0, 0,))
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0,0
         self.x = x*TILESIZE
@@ -266,24 +267,22 @@ class Bullet(Sprite):
         # calls the function
         self.bullet_movement()
 
-class Camera(pg.sprite.Group):
-    def __init__(self):
-        self.groups = pg.sprite.Group
+class Camera:
+    def __init__(self, game):
+        self.game = game
         self.offset = pg.math.Vector2()
-        self.floor_rect = background.get_rect(topleft = (0,0))
-        
+
     def custom_draw(self):
-        # makes the camera go opposite direction of player
-        self.offset.x = player.rect.centerx - WIDTH // 2
-        self.offset.y = player.rect.centery - HEIGHT // 2
+        #make the camera follow the player by calculating how far camera moved
+        self.offset.x = self.game.player.rect.centerx - WIDTH // 2
+        self.offset.y = self.game.player.rect.centery - HEIGHT // 2
 
-        floor_offset_pos = self.floor_rect.topleft - self.offset
-        screen.blit(background, floor_offset_pos)
-
-        for sprite in self.all_sprites:
+        #draw every sprite using the camera offset
+        for sprite in self.game.all_sprites:
+            #calculate screen pos without changing sprite.rect
             offset_pos = sprite.rect.topleft - self.offset
-            self.blit(sprite.image, offset_pos)
-        
+            #draw sprite at camera adjusted pos
+            self.game.screen.blit(sprite.image, offset_pos)
 
 
 class Particle(Sprite):

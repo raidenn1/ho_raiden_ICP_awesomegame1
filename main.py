@@ -69,6 +69,8 @@ class Game:
         
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio')
+        self.map_img = pg.image.load(path.join(self.img_dir, "Map_Vers1.png")).convert()
+        self.map_img_rect = self.map_img.get_rect(topleft=(0, 0))
         self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "completetask_0.mp3"))
         self.map = Map(path.join(self.game_dir, map))
 
@@ -95,7 +97,7 @@ class Game:
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
         self.all_bullets = pg.sprite.Group()
-    
+        self.camera = Camera(self)
 
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
@@ -115,7 +117,8 @@ class Game:
     def run(self):
         self.playing = True
         while self.playing:
-            self.screen.blit(self.player.image, self.player.rect)
+            # self.screen.blit(self.player.image, self.player.rect)
+
             # pg.draw.rect(self.screen, "red", self.player.hit_rect, width= 2)
             # pg.draw.rect(self.screen, "yellow", self.player.rect, width= 2)
             self.dt = self.clock.tick(FPS) / 1000
@@ -159,8 +162,11 @@ class Game:
     def draw(self):
         # this order matters -- first things are on the bottom because they are the 'first' to be drawn
         # the last lines in this method are drawn on top or last
-        self.screen.fill(NAVY)
-        self.all_sprites.draw(self.screen)
+        # self.screen.fill()
+        map_offset = self.map_img_rect.topleft - self.camera.offset
+        self.screen.blit(self.map_img, map_offset)
+        # self.all_sprites.draw(self.screen)
+        self.camera.custom_draw()
         # self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
         # self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
         # self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/8)
