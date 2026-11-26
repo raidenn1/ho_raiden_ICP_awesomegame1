@@ -73,7 +73,7 @@ class Player(Sprite):
         self.shoot = False
         self.shoot_cooldown = 0
         print('player instantiated')
-        print(self.pos)   
+        # print(self.pos)   
         
     def player_rotation(self):
         #gets the position of mouse
@@ -167,7 +167,7 @@ class Player(Sprite):
         self.get_keys()
         # self.animate()
         self.player_rotation()
-        print(self.rect.center)
+        # print(self.rect.center)
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
@@ -215,7 +215,7 @@ class Wall(Sprite):
 
 class Bullet(Sprite):
     def __init__(self, game, x, y, angle):
-        self.groups = game.all_sprites, game.all_walls
+        self.groups = game.all_sprites, game.all_bullets
         Sprite.__init__(self, self.groups)
         #connects game to bulelt
         self.game = game
@@ -233,7 +233,9 @@ class Bullet(Sprite):
         #x & y positions
         self.x = x
         self.y = y
-        
+
+        self.damage = DAMAGE
+
         self.speed = BULLET_SPEED
         #youtube for the math
 
@@ -262,10 +264,19 @@ class Bullet(Sprite):
         #integer bc pg uses whole pixel coordinates
         self.rect.center = (int(self.x), int(self.y))
 
+    def check_collision(self):
+        hits = pg.sprite.spritecollide(self, self.game.all_mobs, False)
+        if hits:
+            for hit in hits:
+                hit.take_damage(self.damage)
+
+
+
 
     def update(self):
         # calls the function
         self.bullet_movement()
+        self.check_collision()
 
 class Camera:
     def __init__(self, game):
@@ -305,7 +316,7 @@ class Particle(Sprite):
     def update(self):
         # countdown ticking
         # self.countdown.ticking()
-        print(self.countdown.get_delta())
+        # print(self.countdown.get_delta())
         self.pos += self.vel * self.speed * self.game.dt
         if self.countdown.get_delta() > 2:
             self.kill()
@@ -366,12 +377,20 @@ class Mob(Sprite):
         self.last_update = 0
         self.current_frame = 0
         self.hit_rect = MOB_HIT_RECT
-        print("mob initialized...")
-        print("Mobs = 1")
+        self.health = 100
+        self.max_health = 100
+        
+        # print("mob initialized...")
+        # print("Mobs = 1")
         # print(self.rect.x)
         # print(self.rect.y)
          
- 
+    def take_damage(self, damage):
+        self.health = self.health =- damage
+        if self.health < 0:
+            self.kill()
+
+   
 
     def load_images(self):
             self.idle_frames = [self.spritesheet.get_image(ZOMBIE_WIDTH, ZOMBIE_HEIGHT, ZOMBIE_WIDTH, ZOMBIE_HEIGHT),

@@ -3,7 +3,7 @@ WIDTH = 1024
 HEIGHT = 768
 TITLE = "Best game evah!!!"
 TILESIZE = 32
-FPS = 30
+FPS = 60
 
 # colors
 BGCOLOR = (255, 100,100)
@@ -31,6 +31,7 @@ MOB_HIT_RECT = pg.Rect(0,0, TILESIZE-5, TILESIZE-5)
 BULLET_SCALE = 1
 SHOOT_COOLDOWN = 10
 BULLET_SPEED = 50
+DAMAGE = 25
 
 #zombie settings
 ZOMBIE_WIDTH = 46

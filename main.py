@@ -162,7 +162,7 @@ class Game:
     def draw(self):
         # this order matters -- first things are on the bottom because they are the 'first' to be drawn
         # the last lines in this method are drawn on top or last
-        # self.screen.fill()
+        self.screen.fill(BLACK)
         map_offset = self.map_img_rect.topleft - self.camera.offset
         self.screen.blit(self.map_img, map_offset)
         # self.all_sprites.draw(self.screen)
