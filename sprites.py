@@ -264,11 +264,15 @@ class Bullet(Sprite):
         #integer bc pg uses whole pixel coordinates
         self.rect.center = (int(self.x), int(self.y))
 
+    #checks if the bullet is colliding with mob
     def check_collision(self):
         hits = pg.sprite.spritecollide(self, self.game.all_mobs, False)
         if hits:
+            #for loop for taking damage
             for hit in hits:
                 hit.take_damage(self.damage)
+                self.kill()
+                break
 
 
 
@@ -295,6 +299,14 @@ class Camera:
             #draw sprite at camera adjusted pos
             self.game.screen.blit(sprite.image, offset_pos)
 
+            #since using self.game.all_sprites does all sprites, this makes sure its only Mob
+            if isinstance(sprite, Mob):
+                if sprite.damage_image is not None:
+                    pg.draw.rect(self.game.screen, "Red", (offset_pos.x + sprite.rect.width / 12, offset_pos.y + sprite.rect.height / 1 , HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT))
+                    #multiples healthbar width by a fraction to display the remaining health in any format width
+                    pg.draw.rect(self.game.screen, "GREEN", (offset_pos.x + sprite.rect.width / 12, offset_pos.y + sprite.rect.height / 1 , HEALTHBAR_WIDTH * (sprite.health / sprite.max_health) , HEALTHBAR_HEIGHT))
+                    self.game.screen.blit(sprite.damage_image, self.pos)
+            
 
 class Particle(Sprite):
     def __init__(self, game, x, y):
@@ -379,18 +391,27 @@ class Mob(Sprite):
         self.hit_rect = MOB_HIT_RECT
         self.health = 100
         self.max_health = 100
+        self.damage_image = None
         
         # print("mob initialized...")
         # print("Mobs = 1")
         # print(self.rect.x)
         # print(self.rect.y)
          
+   #take damage function 
     def take_damage(self, damage):
-        self.health = self.health =- damage
-        if self.health < 0:
+        # 100 - 25
+        self.health -= damage
+        #if 0 kill player
+        self.font = pg.font.Font(None, 24)
+        self.damage_text = f"-{damage}"
+        self.damage_image = self.font.render(self.damage_text, True, "red")
+        
+        if self.health <= 0:
             self.kill()
-
+    
    
+
 
     def load_images(self):
             self.idle_frames = [self.spritesheet.get_image(ZOMBIE_WIDTH, ZOMBIE_HEIGHT, ZOMBIE_WIDTH, ZOMBIE_HEIGHT),
